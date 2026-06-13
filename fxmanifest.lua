@@ -3,7 +3,7 @@ game 'gta5'
 
 lua54 'yes'
 
-author 'icho'
+author 'r4gi'
 description 'QBCore billing script using ox_lib'
 version '1.0.0'
 
