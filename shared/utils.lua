@@ -50,3 +50,57 @@ end
 function IchoBilling.Utils.getStatusIconColor(status)
     return Config.UI.StatusIconColor[status]
 end
+
+function IchoBilling.Utils.resolveJobBillingProfile(job)
+    if not Config.JobBilling.Enabled or type(job) ~= 'table' then
+        return nil
+    end
+
+    local jobName = job.name
+    if not jobName or jobName == '' then
+        return nil
+    end
+
+    local deniedJobs = Config.JobBilling.DeniedJobs or {}
+    if deniedJobs[jobName] then
+        return nil
+    end
+
+    local profile = Config.JobBilling.Jobs and Config.JobBilling.Jobs[jobName]
+    if not profile and not Config.JobBilling.AllowUnconfiguredJobs then
+        return nil
+    end
+
+    profile = profile or {}
+    if profile.enabled == false then
+        return nil
+    end
+
+    local minGrade = tonumber(profile.minGrade) or 0
+    local gradeLevel = tonumber(job.grade and job.grade.level or 0) or 0
+    if gradeLevel < minGrade then
+        return nil
+    end
+
+    local requireOnDuty = profile.requireOnDuty
+    if requireOnDuty == nil then
+        requireOnDuty = Config.JobBilling.RequireOnDuty
+    end
+
+    if requireOnDuty and not job.onduty then
+        return nil
+    end
+
+    local poolPercent = math.floor(IchoBilling.Utils.clamp(
+        profile.poolPercent or Config.JobBilling.DefaultPoolPercent or 100,
+        0,
+        100
+    ))
+
+    return {
+        jobName = jobName,
+        jobLabel = profile.label or job.label or jobName,
+        poolAccount = profile.poolAccount or jobName,
+        poolPercent = poolPercent
+    }
+end

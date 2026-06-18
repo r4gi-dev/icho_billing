@@ -64,33 +64,5 @@ function Server.getJobBillingProfile(Player)
     end
 
     local job = Player.PlayerData.job or {}
-    local profile = Config.JobBilling.Jobs and Config.JobBilling.Jobs[job.name]
-
-    if not profile or profile.enabled == false then
-        return nil
-    end
-
-    local minGrade = tonumber(profile.minGrade) or 0
-    local gradeLevel = tonumber(job.grade and job.grade.level or 0) or 0
-    if gradeLevel < minGrade then
-        return nil
-    end
-
-    local requireOnDuty = profile.requireOnDuty
-    if requireOnDuty == nil then
-        requireOnDuty = Config.JobBilling.RequireOnDuty
-    end
-
-    if requireOnDuty and not job.onduty then
-        return nil
-    end
-
-    local poolPercent = Utils.clamp(profile.poolPercent or Config.JobBilling.DefaultPoolPercent or 100, 0, 100)
-
-    return {
-        jobName = job.name,
-        jobLabel = profile.label or job.label or job.name,
-        poolAccount = Server.resolveJobPoolAccount(job.name, profile),
-        poolPercent = poolPercent
-    }
+    return Utils.resolveJobBillingProfile(job)
 end

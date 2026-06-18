@@ -37,6 +37,10 @@ Config.JobBilling = {
     DefaultPoolPercent = 100,
     RemainderTarget = 'issuer',
     RequireOnDuty = true,
+    AllowUnconfiguredJobs = false,
+    DeniedJobs = {
+        unemployed = true
+    },
     Jobs = {
         -- poolAccount は省略可能です。省略時は job 名をそのまま入金先に使います。
         -- police = {
